@@ -84,6 +84,7 @@ if st.sidebar.button("Start new chat"):
 st.markdown("<h2 style='text-align:center; color:#10a37f;'>🌊 FloatChat - Ocean Data Assistant</h2>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center; color:#9fbfcc;'>Ask about ARGO float data, salinity, or ocean science.</p>", unsafe_allow_html=True)
 
+
 # ---------------- CHAT DISPLAY ----------------
 # Render chat area using components.html so we can control scroll and layout precisely
 def render_chat(messages):
@@ -100,8 +101,8 @@ def render_chat(messages):
     <html>
     <head>
     <style>
-    body {{ background: #0f1720; color: #e6eef0; font-family: Inter, Arial, sans-serif; padding: 12px; }}
-    .chat-container {{ max-height: 68vh; overflow-y: auto; display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:10px; }}
+    html,body {{ height:100%; margin:0; padding:0; background: #0f1720; color: #e6eef0; font-family: Inter, Arial, sans-serif; }}
+    .chat-container {{ height:100%; overflow-y: auto; display:flex; flex-direction:column; gap:8px; padding:18px; box-sizing:border-box; }}
     .user-msg, .bot-msg {{ border-radius: 12px; padding: 12px 14px; max-width: 78%; line-height:1.4; word-wrap: break-word; }}
     .user-msg {{ align-self: flex-end; background: linear-gradient(90deg,#0ea37f,#0bb98c); color: #022; box-shadow: 0 2px 8px rgba(16,163,127,0.12); }}
     .bot-msg {{ align-self: flex-start; background: #0b2430; color: #cfeef5; border: 1px solid rgba(255,255,255,0.02); }}
@@ -121,10 +122,9 @@ def render_chat(messages):
     </body>
     </html>
     """
-    # Pick a sensible height to show inside the iframe; allows the input bar below to always be visible
-    components.html(chat_html, height=600)
+    # Use a height that fills the main content area; Streamlit will place this above the fixed input
+    components.html(chat_html, height=720)
 
-render_chat(st.session_state.chat_history)
 
 # ---------------- MESSAGE HANDLER ----------------
 def handle_user_message():
@@ -150,26 +150,57 @@ def handle_user_message():
     # Clear input
     st.session_state.input_box = ""
 
+
+# ---------------- MESSAGE HANDLER ----------------
+
+
+
+
+# ---------------- MESSAGE HANDLER ----------------
+
+
+
+# Decide layout: if no chat history, show a centered welcome prompt and centered input; otherwise show chat + fixed bottom input
+if not st.session_state.chat_history:
+    # center prompt and input
+    st.markdown("""
+    <div style='height:60vh; display:flex; align-items:center; justify-content:center; flex-direction:column;'>
+      <h3 style='color:#cfeef5;'>What's on the agenda today?</h3>
+      <p style='color:#94bfb1; max-width:700px; text-align:center;'>Ask FloatChat about ARGO float data, salinity, or ocean science — type below and press Enter.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Centered input (not fixed)
+    c1, c2, c3 = st.columns([1, 2, 1])
+    with c2:
+        st.text_input("", key="input_box", placeholder="Ask anything — press Enter to send...", on_change=handle_user_message)
+else:
+    # Render the chat area and show fixed bottom input
+    render_chat(st.session_state.chat_history)
+
+# (message handler is defined above so callbacks can reference it)
+
 # ---------------- INPUT BAR ----------------
-# Fixed input bar at bottom of the screen
-st.markdown("""
-<div style='position:fixed; left:18%; bottom:18px; width:65%; z-index:9999;'>
-""", unsafe_allow_html=True)
+# Fixed input bar at bottom of the screen (only when there is chat history)
+if st.session_state.chat_history:
+    st.markdown("""
+    <div style='position:fixed; left:18%; bottom:18px; width:65%; z-index:9999;'>
+    """, unsafe_allow_html=True)
 
-col1, col2 = st.columns([9, 1])
-with col1:
-    st.text_input(
-        "",
-        key="input_box",
-        label_visibility="collapsed",
-        placeholder="Type a message and press Enter or click Send...",
-        on_change=handle_user_message,
-    )
+    col1, col2 = st.columns([9, 1])
+    with col1:
+        st.text_input(
+            "",
+            key="input_box",
+            label_visibility="collapsed",
+            placeholder="Type a message and press Enter or click Send...",
+            on_change=handle_user_message,
+        )
 
-with col2:
-    if st.button("Send"):
-        handle_user_message()
+    with col2:
+        if st.button("Send"):
+            handle_user_message()
 
-st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # Note: Streamlit re-runs the script automatically on user interaction so explicit reruns are unnecessary.

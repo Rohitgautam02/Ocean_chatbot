@@ -1,0 +1,6 @@
+User: hello
+Bot: Hello! I’m FloatChat, your ocean data assistant. Ask me about ocean parameters!
+
+User: tell about salinity
+Bot: Salinity near the equator averages around 35 PSU, but it decreases near heavy rainfall areas.
+
