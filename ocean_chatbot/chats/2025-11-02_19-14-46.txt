@@ -1,0 +1,6 @@
+User: hello
+Bot: Hello! I’m FloatChat, your ocean data assistant. Ask me about ocean parameters!
+
+User: argo
+Bot: Argo floats collect temperature and salinity data from the world’s oceans every 10 days.
+
